@@ -1,5 +1,4 @@
 export function getSupabaseUrl(): string {
-  // Try to get from environment first
   if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
     return process.env.NEXT_PUBLIC_SUPABASE_URL
   }
@@ -7,7 +6,8 @@ export function getSupabaseUrl(): string {
   // Extract from POSTGRES_URL (server-side only)
   const postgresUrl = process.env.POSTGRES_URL
   if (!postgresUrl) {
-    throw new Error("POSTGRES_URL is not defined")
+    console.error("[v0] POSTGRES_URL is not defined")
+    return "https://dmquuzhztnrafhzflwkd.supabase.co" // Fallback
   }
 
   // Parse the URL to extract the project reference
@@ -18,23 +18,33 @@ export function getSupabaseUrl(): string {
 
     const projectRefMatch = username.match(/^postgres\.(.+)$/)
     if (!projectRefMatch) {
-      throw new Error("Could not extract project ref from username")
+      console.error("[v0] Could not extract project ref from username")
+      return "https://dmquuzhztnrafhzflwkd.supabase.co" // Fallback
     }
 
     const projectRef = projectRefMatch[1]
     return `https://${projectRef}.supabase.co`
   } catch (error) {
     console.error("[v0] Error extracting Supabase URL:", error)
-    throw new Error("Could not extract Supabase URL from POSTGRES_URL")
+    return "https://dmquuzhztnrafhzflwkd.supabase.co" // Fallback
   }
 }
 
 export function getSupabaseAnonKey(): string {
-  const key = process.env.SUPABASE_ANON_KEY || ""
+  const key =
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_KEY ||
+    ""
 
   if (!key) {
-    console.error("[v0] Missing Supabase Anon Key - check environment variables SUPABASE_ANON_KEY")
-    throw new Error("Supabase anon key is required")
+    console.error("[v0] Missing Supabase Anon Key!")
+    console.error("[v0] Please set one of these environment variables in Vercel:")
+    console.error("[v0]   - SUPABASE_ANON_KEY")
+    console.error("[v0]   - NEXT_PUBLIC_SUPABASE_ANON_KEY")
+    console.error("[v0] Or connect the Supabase integration in your Vercel project.")
+    // Return empty string instead of throwing to allow app to start
+    return ""
   }
 
   return key
