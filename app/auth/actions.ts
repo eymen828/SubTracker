@@ -30,11 +30,11 @@ export async function login(formData: FormData) {
 
     console.log("[v0] Login successful")
     revalidatePath("/", "layout")
-    redirect("/")
   } catch (error) {
     console.error("[v0] Login exception:", error)
     return { error: error instanceof Error ? error.message : "Login failed" }
   }
+  redirect("/")
 }
 
 export async function signup(formData: FormData) {
@@ -66,11 +66,11 @@ export async function signup(formData: FormData) {
 
     console.log("[v0] Signup successful")
     revalidatePath("/", "layout")
-    redirect("/auth/sign-up-success")
   } catch (error) {
     console.error("[v0] Signup exception:", error)
     return { error: error instanceof Error ? error.message : "Signup failed" }
   }
+  redirect("/auth/sign-up-success")
 }
 
 export async function signOut() {
